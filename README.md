@@ -5,6 +5,10 @@ API. This branch is kept around for the time tektoncd/pipeline will
 continue supporting `v1alpha1` APIs. It is meant to be a *fix-only*
 branch, any new Task should be added to the `v1beta1` branch**
 
+**If you want `v1alpha1` resources, you need to go to the
+[`master`](https://github.com/tektoncd/catalog/tree/master) branch (or
+[`v1alpha1`](https://github.com/tektoncd/catalog/tree/v1alpha1) branch)**
+
 This repository contains a catalog of `Task` resources (and someday
 `Pipeline`s and `Resource`s), which are designed to be reusable in many
 pipelines.
@@ -12,6 +16,9 @@ pipelines.
 Each `Task` is provided in a separate directory along with a README.md and a
 Kubernetes manifest, so you can choose which `Task`s to install on your
 cluster. A directory can hold more than one task (e.g. [`golang`](golang)).
+
+_See [our project roadmap](roadmap.md)._
+
 
 ## `Task` Kinds
 
@@ -47,24 +54,20 @@ With the `Task` installed, you can define a `TaskRun` that runs that `Task`,
 being sure to provide values for required input parameters and resources:
 
 ```
-apiVersion: tekton.dev/v1alpha1
+apiVersion: tekton.dev/v1beta1
 kind: TaskRun
 metadata:
   name: example-run
 spec:
   taskRef:
     name: golang-build
-  inputs:
-    params:
-    - name: package
-      value: github.com/tektoncd/pipeline
-    resources:
-    - name: source
-      resourceSpec:
-        type: git
-        params:
-        - name: url
-          value: https://github.com/tektoncd/pipeline
+  params:
+  - name: package
+    value: github.com/tektoncd/pipeline
+  workspaces:
+  - name: source
+    persistentVolumeClaim:
+      claimName: my-source
 ```
 
 Next, create the `TaskRun` you defined:
@@ -78,7 +81,7 @@ You can check the status of the `TaskRun` using `kubectl`:
 
 ```
 $ kubectl get taskrun example-run -oyaml
-apiVersion: tekton.dev/v1alpha1
+apiVersion: tekton.dev/v1beta1
 kind: TaskRun
 metadata:
   name: example-run
@@ -105,3 +108,5 @@ This project is still under active development, so you might run into
 [issues](https://github.com/tektoncd/catalog/issues). If you do,
 please don't be shy about letting us know, or better yet, contribute a
 fix or feature. Its folder structure is not yet set in stone either.
+
+_See [our project roadmap](roadmap.md)._
